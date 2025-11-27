@@ -14,7 +14,7 @@ class HashTable: public Dict<V>{
 	private:
 		int n;	//elementos actuales
 		int max;	//número total de cubetas (tamaño de la tabla)
-		ListLinked<TableEntry<V>>* table;	//array de listas encadenadas
+		ListLinked<TableEntry<V>>** table;	//array de listas encadenadas
 
 		//función que suma los valores ASCII de la clave y el tamaño de la tabla hash
 		int h(std::string key){
@@ -27,14 +27,20 @@ class HashTable: public Dict<V>{
 
 	public:
 		//constructor que reserva e inicializa
-		HashTable(int size): n(0), max(size){
+		HashTable(int size): n(0), max(size), table(nullptr){
 			if(size<=0) throw std::runtime_error("Tamaño de la tabla invalido.");
-			table=new ListLinked<TableEntry<V>>[max];
+			table=new ListLinked<TableEntry<V>>*[max];
+			for (int i = 0; i < max; ++i) {
+    				table[i] = new ListLinked<TableEntry<V>>();
+			}
 		}
 
 		//destructor que libera memoria
 		~HashTable() {
-        		delete[] table;
+        		for(int i=0; i<max; i++){
+				delete table[i];
+			}
+			delete[] table;
     		}
 
 		//capacidad total de la tabla (cubetas)
@@ -46,16 +52,14 @@ class HashTable: public Dict<V>{
 		void insert(std::string key, V value)override{
 			int b= h(key);
 			TableEntry<V> probe(key);
-			for(int i=0; i<table[b].size(); i++){
-				const auto& te= table[b].get(i);
+			for(int i=0; i<table[b]->size(); i++){
+				const auto& te= table[b]->get(i);
 				if(te== probe){
-					V val= te.value;
-					table[b].remove(i);
-					n--;
-					return val;
+					throw std::runtime_error("Key '"+key+" 'ya existe");
 				}
 			}
-			throw std::runtime_error("Key '"+key+" ' no encontrada");
+			table[b]->append(TableEntry<V>(key,value));
+			n++;
 		}
 
 		int entries()override{
@@ -76,8 +80,8 @@ class HashTable: public Dict<V>{
 			for(int b=0; b<th.max; b++){
 				out<<"== Cubeta"<<b<<" ==\n\n";
 				out<<"List=> [\n";
-				for(int i=0; i<th.table[b].size(); i++){
-					const auto& te= th.table[b].get(i);
+				for(int i=0; i<th.table[b]->size(); i++){
+					const auto& te= th.table[b]->get(i);
 					out<<" ('"<<te.key<<"' => "<<te.value<<")\n";
 				}
 				out<<"]\n\n";
@@ -85,6 +89,33 @@ class HashTable: public Dict<V>{
 			out<<"=============\n";
 			return out;
 		}
+
+		V remove(std::string key) override {
+		    int b = h(key);
+    			TableEntry<V> probe(key);
+    			for (int i = 0; i < table[b]->size(); i++) {
+        			const auto& te = table[b]->get(i);
+        			if (te == probe) {
+            				V val = te.value;
+            				table[b]->remove(i);
+            				n--;
+            				return val;
+        	}	
+    }
+    throw std::runtime_error("Key '" + key + "' not found!");
+}
+
+
+V search(std::string key) override {
+    int b = h(key);
+    TableEntry<V> probe(key);
+    for (int i = 0; i < table[b]->size(); ++i) {
+        const auto& te = table[b]->get(i);
+        if (te == probe) return te.value;
+    }
+    throw std::runtime_error("Key '" + key + "' not found!");
+}
+
 };
 
 #endif
