@@ -45,7 +45,7 @@ class BSTree{
 		//metodo recursivo
 		//eliminación de los elementos e cuya raíz es n
 		//devuelve nodo que encabeza el arbol modificado
-		BSNode<T>* remove(BSNode<T>* n, T e)const{
+		BSNode<T>* remove(BSNode<T>* n, T e){
 			if(n==nullptr){
 				throw std:: runtime_error("Elemento no encontrado");
 			}
