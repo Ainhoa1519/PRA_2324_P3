@@ -7,8 +7,8 @@
 template <typename V>
 class TableEntry{
 	public:
-		std::string key;
-		V value;
+		std::string key;	//elemento clave del par
+		V value;		//elemento valor del par
 
 		//constructor con la clave y el valor
 		TableEntry(std::string k, V v): key(k), value (v) {
