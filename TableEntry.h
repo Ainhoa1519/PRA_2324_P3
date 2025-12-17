@@ -14,7 +14,7 @@ class TableEntry{
 		TableEntry(std::string k, V v): key(k), value (v) {
 		}
 
-		//constructor solo con la clave
+		//constructor solo con la clave (crea una entrada con la clave vacía)
 		TableEntry (std::string k): key(k), value(){
 		}
 
